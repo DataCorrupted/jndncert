@@ -26,4 +26,11 @@ public class ClientCaItem {
     // CA's certificate.
     public CertificateV2 m_anchor;
 
+    public ClientCaItem(){
+        m_caName = null;
+        m_anchor = null;
+        m_caInfo = "";
+        m_probe = "";
+        m_targetedList = "";
+    }
 }
