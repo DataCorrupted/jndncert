@@ -3,7 +3,7 @@ package net.named_data.jndncert.client;
 import net.named_data.jndn.security.pib.PibKey;
 import java.util.List;
 
-public class ClientRequestState {
+public class RequestState {
 
     public ClientCaItem m_ca;
     // TODO: There is no security::Key in jndn.
