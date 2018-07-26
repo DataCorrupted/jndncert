@@ -39,6 +39,9 @@ public class ClientConfig {
             JsonObject temp_obj = arr.getJsonObject(idx);
             m_caItems.add(extractCaItem(temp_obj));
         }
+        // TODO: This is not tested in unit test.
+        m_localNdncertAnchor =
+            getStringFromJsonObj(main_obj, "local-ndncert-anchor");
     }
 
     // TODO: This function appears in the ndncert, yet it's never implemented.
