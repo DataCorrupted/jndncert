@@ -15,3 +15,4 @@ Please go and download these two _jar_ files before you compile.
 	wget https://mvnrepository.com/artifact/org.glassfish/javax.json/1.0
 	wget https://mvnrepository.com/artifact/javax.json/javax.json-api/1.0
 
+For detailed API refer to [here](https://docs.oracle.com/javaee/7/api/javax/json/package-summary.html)

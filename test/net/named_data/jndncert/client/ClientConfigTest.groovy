@@ -17,10 +17,9 @@ class ClientConfigTest extends groovy.util.GroovyTestCase {
         assert item.m_probe == "Please use your email address to apply a namespace first."
         assert item.m_targetedList == "Use your email address (edu preferred) as input"
         assert item.m_isListEnabled
-        // TODO: Test anchor here.
-//        assert item.m_anchor.getName().toUri() ==
-//                "/ndn/site1/KEY/%11%BC%22%F4c%15%FF%17/self/%FD%00%00%01Y%C8%14%D9%A5"
-
+        assert item.m_anchor.getName().toUri() ==
+                "/ndn/site1/KEY/%11%BC%22%F4c%15%FF%17/self/%FD%00%00%01Y%C8%14%D9%A5"
+        assert config.m_localNdncertAnchor == "/usr/local/etc/ndncert/anchor.key"
         System.err.println("ClientConfig.load(): Passed.");
     }
 
@@ -54,7 +53,7 @@ class ClientConfigTest extends groovy.util.GroovyTestCase {
             .add("target-list", "list")
             .add("probe", "probe")
             .add("is-list-enabled", "true")
-            .add("certificate", "cert")
+            .add("certificate", "Bv0CJAcsCANuZG4IBXNpdGUxCANLRVkICBG8IvRjFf8XCARzZWxmCAn9AAABWcgU2aUUCRgBAhkEADbugBX9AU8wggFLMIIBAwYHKoZIzj0CATCB9wIBATAsBgcqhkjOPQEBAiEA/////wAAAAEAAAAAAAAAAAAAAAD///////////////8wWwQg/////wAAAAEAAAAAAAAAAAAAAAD///////////////wEIFrGNdiqOpPns+u9VXaYhrxlHQawzFOw9jvOPD4n0mBLAxUAxJ02CIbnBJNqZnjhE50mt4GffpAEQQRrF9Hy4SxCR/i85uVjpEDydwN9gS3rM6D0oTlF2JjClk/jQuL+Gn+bjufrSnwPnhYrzjNXazFezsu2QGg3v1H1AiEA/////wAAAAD//////////7zm+q2nF56E87nKwvxjJVECAQEDQgAES9Cb9iANUNYmwt5bjwNW1mZgjzIkDJb6FTCdiYWnkMMIVxh2YDllphoWDEAPS6kqJczzCuhnGYpZCp9tTaYKGxZMGwEDHB0HGwgDbmRuCAVzaXRlMQgDS0VZCAgRvCL0YxX/F/0A/Sb9AP4PMTk3MDAxMDFUMDAwMDAw/QD/DzIwMzcwMTE3VDIxMjg0NhdIMEYCIQDXkR1hF3GiP7yLXq+0JBJfi9QC+hhAu/1Bykx+MWz6RAIhANwelBTxxZr2C5bD15mjfhWudK4I1tOb4b/9xWCHyM7F")
         .build();
 
         ClientConfig config = new ClientConfig();
@@ -65,8 +64,8 @@ class ClientConfigTest extends groovy.util.GroovyTestCase {
         assert ca_item.m_targetedList == "list"
         assert ca_item.m_probe == "probe"
         assert ca_item.m_isListEnabled
-        // TODO: Please also think of a way to do test on CertV2
-        // assert ca_item.m_anchor == "something"
+        assert ca_item.m_anchor.getName().toUri() ==
+                "/ndn/site1/KEY/%11%BC%22%F4c%15%FF%17/self/%FD%00%00%01Y%C8%14%D9%A5"
 
         System.err.println("ClientConfig.extractItem(): Passed.");
 

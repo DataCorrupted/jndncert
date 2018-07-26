@@ -1,6 +1,10 @@
 package net.named_data.jndncert.client;
 
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -9,14 +13,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class ClientConfig {
 
-    // TODO: Do this really need to be public?
     public ArrayList<ClientCaItem> m_caItems = new ArrayList<>();
     public String m_localNdncertAnchor = "";
+    private final Logger log = Logger.getLogger("ClientConfig");
 
     public void load(String fileName){
         try {
@@ -26,8 +32,7 @@ public class ClientConfig {
             load(reader);
             reader.close();
         } catch (FileNotFoundException e) {
-            // TODO: Try other logging method.
-            System.err.println("Json File " + fileName + "not found.");
+            log.warning(e.getMessage());
         };
     }
 
@@ -39,12 +44,11 @@ public class ClientConfig {
             JsonObject temp_obj = arr.getJsonObject(idx);
             m_caItems.add(extractCaItem(temp_obj));
         }
-        // TODO: This is not tested in unit test.
         m_localNdncertAnchor =
                 main_obj.getString("local-ndncert-anchor", "");
     }
 
-    // TODO: This function appears in the ndncert, yet it's never implemented.
+    // TODO: This function appeared in the ndncert, yet it's never implemented.
     // Please implement it after ndncert gets updated.
     public void addNewCaItem(ClientCaItem item){ ; }
 
@@ -54,20 +58,25 @@ public class ClientConfig {
     }
 
     private ClientCaItem extractCaItem(JsonObject jsonObj){
-        ClientCaItem ca_itme = new ClientCaItem();
+        ClientCaItem ca_item = new ClientCaItem();
 
         // If these items are not there, Json parser will throw an NullPointerException
         // because the library is converting a nullptr to a String, which is meaningless.
-        ca_itme.m_caName = new Name(jsonObj.getString("ca-prefix"));
-        ca_itme.m_caInfo = jsonObj.getString("ca-info", "");
-        ca_itme.m_probe = jsonObj.getString("probe", "");
-        ca_itme.m_isListEnabled =
+        ca_item.m_caName = new Name(jsonObj.getString("ca-prefix"));
+        ca_item.m_caInfo = jsonObj.getString("ca-info", "");
+        ca_item.m_probe = jsonObj.getString("probe", "");
+        ca_item.m_isListEnabled =
                 jsonObj.getString("is-list-enabled", "").equals("true");
-        ca_itme.m_targetedList = jsonObj.getString("target-list", "");
+        ca_item.m_targetedList = jsonObj.getString("target-list", "");
 
-        // TODO: I am not sure how a certificate is issued here. Zhiyi please help.
-        // ca_itme.m_anchor = new CertificateV2(jsonObj.getString("certificate"));
-        return ca_itme;
+        final byte[] certBytes = Common.base64Decode(jsonObj.getString("certificate"));
+        try{
+            ca_item.m_anchor = new CertificateV2();
+            ca_item.m_anchor.wireDecode(ByteBuffer.wrap(certBytes));
+        } catch (EncodingException e){
+            log.warning(e.getMessage());
+        }
+        return ca_item;
     }
 
 }
