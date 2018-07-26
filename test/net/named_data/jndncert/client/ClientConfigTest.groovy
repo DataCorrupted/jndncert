@@ -12,9 +12,9 @@ class ClientConfigTest extends groovy.util.GroovyTestCase {
         assert config.m_caItems.size() == 2
 
         final ClientCaItem item = config.m_caItems.get(0);
-        assert item.m_caName.toUri() == "/ndn/edu/ucla/CA"
-        assert item.m_caInfo == "UCLA's ceritificate authority, located in BH4805."
-        assert item.m_probe == "Please use your email address to apply a namespace first. UCLA email is preferred."
+        assert item.m_caName.toUri() == "/ndn/edu/ShanghaiTech/CA"
+        assert item.m_caInfo == "ShanghaiTech's certificate authority."
+        assert item.m_probe == "Please use your email address to apply a namespace first."
         assert item.m_targetedList == "Use your email address (edu preferred) as input"
         assert item.m_isListEnabled
         // TODO: Test anchor here.
@@ -42,7 +42,7 @@ class ClientConfigTest extends groovy.util.GroovyTestCase {
         // Remove
         config.removeCaItem(new Name("/test"));
         assert config.m_caItems.size() == 2
-        assert config.m_caItems.get(1).m_caName.toUri() == "/ndn/edu/ucla/zhiyi/CA"
+        assert config.m_caItems.get(1).m_caName.toUri() == "/ndn/edu/ShanghaiTech/peter/CA"
 
         System.err.println("ClientConfig.removeCaItem(): Passed.");
     }

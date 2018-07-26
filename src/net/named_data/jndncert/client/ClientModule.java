@@ -3,6 +3,7 @@ package net.named_data.jndncert.client;
 import net.named_data.jndn.*;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndncert.common.JsonHelper;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -30,16 +31,16 @@ public class ClientModule {
 
     // Interfaces used to define callback functions.
     public interface LocalhostListCallback{
-        void localhostListCb(ClientConfig clientConfig);
+        void onLocalhostList(ClientConfig clientConfig);
     }
     public interface ListCallback{
-        void listCb(ArrayList<Name> caList, Name assignedName, Name schema);
+        void onList(ArrayList<Name> caList, Name assignedName, Name schema);
     }
     public interface RequestCallback{
-        void requestCb(RequestState state);
+        void onRequest(RequestState state);
     }
     public interface ErrorCallback{
-        void errCb(String errInfo);
+        void onError(String errInfo);
     }
 
     public void reuqestCaTrustAnchor(
@@ -158,6 +159,23 @@ public class ClientModule {
             RequestState state, JsonObject json,
             ErrorCallback errorCb
     ){
+        // TODO: Change "failure" To ChallengeModule.FAILURE later.
+        // There is not ChallengeModule yet.
+        if (state.m_status.equals("failure")){
+            // TODO: Change "failure-info" to marco or static value.
+            errorCb.onError(
+                    json.getString(JsonHelper.JSON_FAILURE_INFO,
+                    ""));
+            return false;
+        }
+        if (state.m_requestId.isEmpty() || state.m_status.isEmpty()){
+            errorCb.onError(
+                    "The response does not carry required fields." +
+                            " requestID: " + state.m_requestId +
+                            " status: " + state.m_status
+            );
+            return false;
+        }
         return true;
     }
 

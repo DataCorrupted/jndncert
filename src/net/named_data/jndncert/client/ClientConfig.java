@@ -41,7 +41,7 @@ public class ClientConfig {
         }
         // TODO: This is not tested in unit test.
         m_localNdncertAnchor =
-            getStringFromJsonObj(main_obj, "local-ndncert-anchor");
+                main_obj.getString("local-ndncert-anchor", "");
     }
 
     // TODO: This function appears in the ndncert, yet it's never implemented.
@@ -53,25 +53,17 @@ public class ClientConfig {
         m_caItems.removeIf(caPredicate);
     }
 
-    /*
-     * @brief: Reads a string from the Json file. Returns "" if it doesn't exist.
-     *
-     */
-    private String getStringFromJsonObj(JsonObject obj, String name){
-        return obj.getJsonString(name) != null ? obj.getString(name) : "";
-    }
-
     private ClientCaItem extractCaItem(JsonObject jsonObj){
         ClientCaItem ca_itme = new ClientCaItem();
 
         // If these items are not there, Json parser will throw an NullPointerException
         // because the library is converting a nullptr to a String, which is meaningless.
         ca_itme.m_caName = new Name(jsonObj.getString("ca-prefix"));
-        ca_itme.m_caInfo = getStringFromJsonObj(jsonObj, "ca-info");
-        ca_itme.m_probe = getStringFromJsonObj(jsonObj, "probe");
+        ca_itme.m_caInfo = jsonObj.getString("ca-info", "");
+        ca_itme.m_probe = jsonObj.getString("probe", "");
         ca_itme.m_isListEnabled =
-                getStringFromJsonObj(jsonObj, "is-list-enabled").equals("true");
-        ca_itme.m_targetedList = getStringFromJsonObj(jsonObj, "target-list");
+                jsonObj.getString("is-list-enabled", "").equals("true");
+        ca_itme.m_targetedList = jsonObj.getString("target-list", "");
 
         // TODO: I am not sure how a certificate is issued here. Zhiyi please help.
         // ca_itme.m_anchor = new CertificateV2(jsonObj.getString("certificate"));
