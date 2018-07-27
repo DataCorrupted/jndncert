@@ -32,9 +32,9 @@ public class JsonHelper {
                 .add(JSON_REQUEST_ID, requestId)
                 .add(JSON_STATUS, status);
         JsonArrayBuilder array = Json.createArrayBuilder();
-        for (String challenge: challenges){
+        for (String c: challenges){
             array = array.add(Json.createObjectBuilder()
-                    .add(JSON_CHALLENGE_TYPE, challenge));
+                    .add(JSON_CHALLENGE_TYPE, c));
         }
         objBuilder = objBuilder.add(JSON_CHALLENGES, array);
         return objBuilder.build();

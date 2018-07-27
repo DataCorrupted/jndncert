@@ -4,15 +4,17 @@ import net.named_data.jndn.*;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SigningInfo;
 import net.named_data.jndn.security.ValidityPeriod;
+import net.named_data.jndn.security.VerificationHelpers;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndncert.common.JsonHelper;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import javax.json.*;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -177,16 +179,19 @@ public class ClientModule {
                 .append("cert-request")
                 .appendVersion(2)
         );
+        // TODO: I think you can use KeyChain.selfSign(PibKey) here.
+        // Let's discuss this later and focus on the functionality now.
         certRequest.setContent(state.m_key.getPublicKey());
         MetaInfo metaInfo = new MetaInfo();
-        metaInfo.setFreshnessPeriod(24*3600.0);
+        metaInfo.setFreshnessPeriod((double) TimeUnit.DAYS.toMillis(1));
         certRequest.setMetaInfo(metaInfo);
         SigningInfo signInfo = new SigningInfo(state.m_key);
-        // TODO: Figure out how to do time better.
         signInfo.setValidityPeriod(
                 new ValidityPeriod(
-                        System.currentTimeMillis(),
-                        System.currentTimeMillis() + 10*24*3600*1000));
+                        System.currentTimeMillis()
+                                + TimeUnit.DAYS.toMillis(0),
+                        System.currentTimeMillis()
+                                + TimeUnit.DAYS.toMillis(10)));
         try {
             m_keyChain.sign(certRequest, signInfo);
         } catch (Exception e) {
@@ -220,7 +225,34 @@ public class ClientModule {
             Interest request, Data reply, RequestState state,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        ;
+        // Verification failed.
+        if (!VerificationHelpers.verifyDataSignature(
+                reply, state.m_ca.m_anchor)){
+            errorCb.onError(
+                    "Cannot verify data from " +
+                    state.m_ca.m_caName.toUri()
+            );
+            return;
+        }
+
+        JsonObject obj = getJsonFromData(reply);
+        state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
+        state.m_requestId = obj.getString(JsonHelper.JSON_REQUEST_ID, "");
+
+        // Status failed.
+        if (!checkStatus(state, obj, errorCb)){
+            return;
+        }
+
+        JsonArray challenges = obj.getJsonArray(JsonHelper.JSON_CHALLENGES);
+        ArrayList<String> challengeList = new ArrayList<>();
+        for (int idx = 0; idx < challenges.size(); idx++){
+            JsonObject o = challenges.getJsonObject(idx);
+            challengeList.add(o.getString(JsonHelper.JSON_CHALLENGE_TYPE));
+        }
+        state.m_challengeList = challengeList;
+        requestCb.onRequest(state);
+        // TODO: NDN_LOG_INFO needed.
     }
 
     public void sendSelect(
@@ -268,14 +300,23 @@ public class ClientModule {
     // Helper functions
     public ClientConfig getClientConfig() { return m_config; }
 
+    // TODO: Consult Zhiyi how to do Unit Test on it.
+    // This is an important function. I don't want to get it wrong.
     public JsonObject getJsonFromData(Data data) {
-        return Json.createObjectBuilder().build();
+        String jsonString = data.getContent().toString();
+        InputStream inputStrStream
+                = new ByteArrayInputStream(jsonString.getBytes());
+        JsonReader reader = Json.createReader(inputStrStream);
+        return reader.readObject();
     }
 
+    // TODO: Also have to consult Zhiyi about Unit Test.
     public Blob nameBlockFromJson(JsonObject obj){
-        return new Blob();
+        String str = obj.toString();
+        return new Blob(str);
     }
 
+    // TODO: To be tested.
     public final Boolean checkStatus(
             RequestState state, JsonObject json,
             ErrorCallback errorCb
