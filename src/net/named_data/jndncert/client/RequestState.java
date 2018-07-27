@@ -6,7 +6,6 @@ import java.util.List;
 public class RequestState {
 
     public ClientCaItem m_ca;
-    // TODO: There is no security::Key in jndn.
     public PibKey m_key;
 
     public String m_requestId;

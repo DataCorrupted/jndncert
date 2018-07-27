@@ -29,23 +29,23 @@ public class ClientConfig {
             File f = new File(fileName);
             InputStream inputFileStream = new FileInputStream(f);
             JsonReader reader = Json.createReader(inputFileStream);
-            load(reader);
+            JsonObject obj = reader.readObject();
+            load(obj);
             reader.close();
         } catch (FileNotFoundException e) {
             log.warning(e.getMessage());
         };
     }
 
-    public void load(JsonReader jsonReader){
+    public void load(JsonObject jsonObject){
         m_caItems.clear();
-        JsonObject main_obj = jsonReader.readObject();
-        JsonArray arr = main_obj.getJsonArray("ca-list");
+        JsonArray arr = jsonObject.getJsonArray("ca-list");
         for (int idx = 0; idx < arr.size(); idx++){
             JsonObject temp_obj = arr.getJsonObject(idx);
             m_caItems.add(extractCaItem(temp_obj));
         }
         m_localNdncertAnchor =
-                main_obj.getString("local-ndncert-anchor", "");
+                jsonObject.getString("local-ndncert-anchor", "");
     }
 
     // TODO: This function appeared in the ndncert, yet it's never implemented.
