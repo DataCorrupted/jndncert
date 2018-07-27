@@ -1,6 +1,5 @@
 package net.named_data.jndncert.client;
 
-import groovy.json.JsonBuilder;
 import net.named_data.jndn.*;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SigningInfo;
@@ -18,12 +17,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static net.named_data.jndn.encoding.tlv.Tlv.SignatureInfo;
 
 
 public class ClientModule {
