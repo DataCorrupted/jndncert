@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 
 
 public class ClientModule {
-    // TODO: Fill this class.
     protected ClientConfig m_config;
     protected Face m_face;
     protected KeyChain m_keyChain;
@@ -186,12 +185,12 @@ public class ClientModule {
     }
 
     public void sendProbe(
-            ClientCaItem ca, String probInfo,
+            ClientCaItem ca, String probeInfo,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
         Name interestName = new Name(ca.m_caName)
                 .append("_PROBE")
-                .append(probInfo);
+                .append(probeInfo);
         Interest interest = new Interest(interestName);
         OnData onData = ((i, d) ->
                 handleProbeResponse(i, d, ca, requestCb, errorCb));
@@ -205,7 +204,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("PROBE interest sent with Probe info " + probeInfo);
     }
 
     public void handleProbeResponse(
@@ -227,7 +226,7 @@ public class ClientModule {
             Name idName = new Name(idNameStr);
             sendNew(ca, idName, requestCb, errorCb);
 
-            // TODO: NDN_LOG_INFO needed.
+            log.info("Got PROBE response with identity " + idNameStr);
         } else {
             errorCb.onError(
                     "The response does not carry required fields.");
@@ -286,7 +285,7 @@ public class ClientModule {
         try{
             m_keyChain.sign(interest, new SigningInfo(state.m_key));
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.warning(e.getMessage());
         }
         OnData onData = ((i, d) -> handleNewResponse(i, d, state, requestCb, errorCb));
         try{
@@ -298,7 +297,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("NEW interest sent with identity " + identityName);
 
     }
 
@@ -333,7 +332,11 @@ public class ClientModule {
         }
         state.m_challengeList = challengeList;
         requestCb.onRequest(state);
-        // TODO: NDN_LOG_INFO needed.
+        log.info(
+                "Got NEW response with requestID " + state.m_requestId +
+                        " with status " + state.m_status +
+                        " with challenge number" + challengeList.size()
+        );
     }
 
     public void sendSelect(
@@ -353,7 +356,7 @@ public class ClientModule {
         try {
             m_keyChain.sign(interest, new SigningInfo(state.m_key));
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.warning(e.getMessage());
         }
         OnData onData = ((i, d) ->
                 handleSelectResponse(i, d, state, requestCb, errorCb));
@@ -367,7 +370,9 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info(
+                "SELECT interest sent with challenge type " +
+                        challengeType);
     }
 
     public void handleSelectResponse(
@@ -384,14 +389,18 @@ public class ClientModule {
            return;
         }
         JsonObject obj = getJsonFromData(reply);
-        // TODO: NDN_LOG_INFO needed.
+        log.info(
+                "SELECT response would change the status" +
+                        " from " + state.m_status +
+                        " to " + obj.getString(JsonHelper.JSON_STATUS)
+        );
 
         state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
         // Status failed.
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
-        // TODO: NDN_LOG_INFO needed
+        log.info("Got SELECT response with status " + state.m_status);
         requestCb.onRequest(state);
     }
 
@@ -412,7 +421,7 @@ public class ClientModule {
         try{
             m_keyChain.sign(interest, new SigningInfo(state.m_key));
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.warning(e.getMessage());
         }
         OnData onData = ((i, d) ->
                 handleSelectResponse(i, d, state, requestCb, errorCb));
@@ -426,7 +435,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("VALIDATE interest sent");
     }
 
     public void handleStatusResponse(
@@ -447,7 +456,7 @@ public class ClientModule {
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("Got VALIDATE response with status " + state.m_status);
         requestCb.onRequest(state);
     }
 
@@ -466,7 +475,7 @@ public class ClientModule {
         try{
             m_keyChain.sign(interest, new SigningInfo(state.m_key));
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.warning(e.getMessage());
         }
         OnData onData = ((i, d) ->
                 handleStatusResponse(i, d, state, requstCb, errorCb));
@@ -480,7 +489,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("STATUS interest sent");
     }
     public void handleRequestResponse(
             Interest interest, Data reply, RequestState state,
@@ -500,7 +509,7 @@ public class ClientModule {
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("Got STATUS response with status " + state.m_status);
         requestCb.onRequest(state);
     }
     public void requestDownload(
@@ -529,7 +538,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        // TODO: NDN_LOG_INFO needed.
+        log.info("DOWNLOAD interest sent");
     }
 
     public void handleDownloadResponse(
@@ -549,9 +558,12 @@ public class ClientModule {
             // TODO: Can I use reply to ask for a CertV2?
             CertificateV2 cert = new CertificateV2(reply);
             m_keyChain.addCertificate(state.m_key, cert);
-            // TODO: NDN_LOG_INFO needed.
+            log.info(
+                    "Got DOWNLOAD response and installed the cert " +
+                            cert.getName()
+            );
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.warning(e.getMessage());
             errorCb.onError(e.getMessage());
         }
         state.m_isInstalled = true;
