@@ -555,7 +555,7 @@ public class ClientModule {
             return;
         }
         try{
-            // TODO: Can I use reply to ask for a CertV2?
+            // TODO: Can I use reply to create a CertV2?
             CertificateV2 cert = new CertificateV2(reply);
             m_keyChain.addCertificate(state.m_key, cert);
             log.info(
@@ -643,7 +643,7 @@ public class ClientModule {
     protected void nackDetected(
             Interest interest, NetworkNack nack,
             ErrorCallback errorCb){
-        ;
+        errorCb.onError("Got Nack.");
     }
     private OnNetworkNack getNetworkNackCallbackFunc(
             ErrorCallback errorCb
