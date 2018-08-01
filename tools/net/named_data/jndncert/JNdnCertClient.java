@@ -2,6 +2,7 @@ package net.named_data.jndncert;
 
 import net.named_data.jndn.Face;
 import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.client.ClientModule;
 
 import javax.json.Json;
@@ -29,8 +30,7 @@ public class JNdnCertClient {
         );
     });
     private ClientModule.RequestCallback validateCb = (state -> {
-        // TODO: Change to ChallengeModule::Success
-        if (state.m_status.equals("success")){
+        if (state.m_status.equals(ChallengeModule.SUCCESS)){
             System.err.println("Done! Certificate has already been issued.");
             client.requestDownload(state, downloadCb, errCb);
             return;
