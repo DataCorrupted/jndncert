@@ -10,6 +10,7 @@ import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.common.JsonHelper;
 
 import javax.json.*;
@@ -576,10 +577,7 @@ public class ClientModule {
 
     public JsonObject getJsonFromData(Data data) {
         String jsonString = data.getContent().toString();
-        InputStream inputStrStream
-                = new ByteArrayInputStream(jsonString.getBytes());
-        JsonReader reader = Json.createReader(inputStrStream);
-        return reader.readObject();
+        return JsonHelper.string2Json(jsonString);
     }
 
     public Blob nameBlockFromJson(JsonObject obj){
@@ -591,9 +589,7 @@ public class ClientModule {
             RequestState state, JsonObject json,
             ErrorCallback errorCb
     ){
-        // TODO: Change "failure" To ChallengeModule.FAILURE later.
-        // There is not ChallengeModule yet.
-        if (state.m_status.equals("failure")){
+        if (state.m_status.equals(ChallengeModule.FAILURE)){
             errorCb.onError(
                     json.getString(JsonHelper.JSON_FAILURE_INFO,
                     ""));

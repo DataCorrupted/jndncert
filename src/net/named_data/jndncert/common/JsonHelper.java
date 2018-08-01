@@ -3,6 +3,8 @@ package net.named_data.jndncert.common;
 import net.named_data.jndn.Name;
 
 import javax.json.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class JsonHelper {
@@ -56,7 +58,7 @@ public class JsonHelper {
                 .add(JSON_CHALLENGE_TYPE, challengeType)
                 .add(JSON_STATUS, status);
         // TODO: This is weird, new Name() gets me "/"
-        if (! name.toUri().equals("/") || ! name.toUri().isEmpty()){
+        if (! name.toUri().equals("/") && ! name.toUri().isEmpty()){
             objBuilder = objBuilder.add(JSON_CERTIFICATE, name.toUri());
         }
         return objBuilder.build();
@@ -72,5 +74,11 @@ public class JsonHelper {
                 .add(JSON_STATUS, status)
                 .add(JSON_FAILURE_INFO, failureInfo)
                 .build();
+    }
+    static public JsonObject string2Json(String str){
+        InputStream inputStrStream
+                = new ByteArrayInputStream(str.getBytes());
+        JsonReader reader = Json.createReader(inputStrStream);
+        return reader.readObject();
     }
 }

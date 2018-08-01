@@ -11,11 +11,10 @@ class JsonHelperTest extends GroovyTestCase {
                 new Name("/ndn/edu/ShanghaiTech/SIST/peter/ThinkPad"),
                 new Name("/ndn/edu/ShanghaiTech/SIST/peter/ca-info")
         )
-        assert probeResponse.getString(JsonHelper.JSON_IDENTIFIER) ==
-                "/ndn/edu/ShanghaiTech/SIST/peter/ThinkPad"
-        assert probeResponse.getString(JsonHelper.JSON_CA_INFO) ==
-                "/ndn/edu/ShanghaiTech/SIST/peter/ca-info"
-        System.err.println("JsonHelper.genProbeResponseJson(...): Passed.");
+        assert probeResponse
+                .getString(JsonHelper.JSON_IDENTIFIER) == "/ndn/edu/ShanghaiTech/SIST/peter/ThinkPad"
+        assert probeResponse
+                .getString(JsonHelper.JSON_CA_INFO) == "/ndn/edu/ShanghaiTech/SIST/peter/ca-info"
     }
 
     void testGenNewResponseJson(){
@@ -31,7 +30,6 @@ class JsonHelperTest extends GroovyTestCase {
         JsonArray array = newResponse.getJsonArray(JsonHelper.JSON_CHALLENGES)
         assert array.getJsonObject(0).getString(JsonHelper.JSON_CHALLENGE_TYPE) == "PIN"
         assert array.getJsonObject(1).getString(JsonHelper.JSON_CHALLENGE_TYPE) == "EMAIL"
-        System.err.println("JsonHelper.genNewResponseJson(...): Passed.");
     }
 
     void testGenChallengeResponseJson() {
@@ -42,7 +40,6 @@ class JsonHelperTest extends GroovyTestCase {
         assert challengeResponse.getString(JsonHelper.JSON_CHALLENGE_TYPE) == "PIN"
         assert challengeResponse.getString(JsonHelper.JSON_STATUS) == "need-code"
         assert challengeResponse.getString(JsonHelper.JSON_CERTIFICATE, "Should get nothing") == "Should get nothing"
-        System.err.println("JsonHelper.genChallengeResponseJson(...): Passed.");
     }
 
     void testGenChallengeResponseJson1() {
@@ -54,7 +51,6 @@ class JsonHelperTest extends GroovyTestCase {
         assert challengeResponse.getString(JsonHelper.JSON_CHALLENGE_TYPE) == "PIN"
         assert challengeResponse.getString(JsonHelper.JSON_STATUS) == "need-code"
         assert challengeResponse.getString(JsonHelper.JSON_CERTIFICATE) == "/ndn/test"
-        System.err.println("JsonHelper.genChallengeResponseJson(..., Name): Passed.");
     }
 
     void testGenFailureJson() {
@@ -64,6 +60,15 @@ class JsonHelperTest extends GroovyTestCase {
         );
         assert failure.getString(JsonHelper.JSON_STATUS) == "failure"
         assert failure.getString(JsonHelper.JSON_FAILURE_INFO) == "This certificate exists"
-        System.err.println("JsonHelper.genFailureJson(...): Passed.");
+    }
+
+    void testString2Json(){
+        String jsonStr = "{" +
+                "\"Name\":\"Peter Rong\"," +
+                "\"School\":\"ShanghaiTech University\"" +
+                "}"
+        JsonObject object = JsonHelper.string2Json(jsonStr);
+        assert object.getString("Name") == "Peter Rong"
+        assert object.getString("School") == "ShanghaiTech University"
     }
 }
