@@ -27,7 +27,8 @@ class ClientModuleTest extends GroovyTestCase {
     DummyFace face = new DummyFace()
     KeyChain keyChain = new KeyChain("pib-memory", "tpm-memory")
     ClientModule client = new ClientModule(face, keyChain)
-    RequestState state_;
+    RequestState state_
+    SigningInfo signInfo
 
     void testInit() {
         client.getClientConfig().load(
@@ -42,6 +43,7 @@ class ClientModuleTest extends GroovyTestCase {
         PibIdentity id = keyChain.createIdentityV2(new Name("/site"))
         PibKey key = id.getDefaultKey()
         CertificateV2 cert = key.getDefaultCertificate()
+        signInfo = new SigningInfo(key)
 
         ClientCaItem item = new ClientCaItem()
         item.m_caName = new Name("/site/CA")
@@ -53,11 +55,11 @@ class ClientModuleTest extends GroovyTestCase {
                 assert state.m_status == "Status"
                 assert state.m_requestId == "69850764"
                 assert state.m_challengeList.size() == 2
-                state_ = state;
+                state_ = state
             }
         }
         client.sendNew(item, new Name("/site"), requestCb, errCb)
-        Interest interest = face.getInterest();
+        Interest interest = face.getInterest()
         // The Interest sent was correct.
         assert interest.getName().size() == 6
         assert interest.getName().getPrefix(3)
@@ -74,7 +76,7 @@ class ClientModuleTest extends GroovyTestCase {
                         "69850764", "Status", challenges)
         Blob blob = client.nameBlockFromJson(responseJson)
         data.setContent(blob)
-        keyChain.sign(data, new SigningInfo(key))
+        keyChain.sign(data, signInfo)
         face.feedData(data)
     }
 
@@ -95,16 +97,17 @@ class ClientModuleTest extends GroovyTestCase {
                 state_ = state
             }
         }
-        client.sendSelect(state_, "EMAIL", param, requestCb, errCb);
+        client.sendSelect(state_, "EMAIL", param, requestCb, errCb)
         Interest interest = face.getInterest()
         assert interest.getName().size() == 8
+        assert interest.getName().getPrefix(3)
+                .toUri() == "/site/CA/_SELECT"
         Data data = new Data()
-        data.setName(interest.getName());
+        data.setName(interest.getName())
         JsonObject status = Json.createObjectBuilder().add("status", "Select").build()
         Blob blob = client.nameBlockFromJson(status)
         data.setContent(blob)
-        // TODO: How do I sign this data?
-        keyChain.sign(data, keyChain.getDefaultIdentity())
+        keyChain.sign(data, signInfo)
         face.feedData(data)
     }
 
