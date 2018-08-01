@@ -55,8 +55,8 @@ public class JsonHelper {
                 .add(JSON_REQUEST_ID, requestId)
                 .add(JSON_CHALLENGE_TYPE, challengeType)
                 .add(JSON_STATUS, status);
-        // TODO: This is wierd, new Name() gets me "/"
-        if (! name.toUri().equals("/")){
+        // TODO: This is weird, new Name() gets me "/"
+        if (! name.toUri().equals("/") || ! name.toUri().isEmpty()){
             objBuilder = objBuilder.add(JSON_CERTIFICATE, name.toUri());
         }
         return objBuilder.build();

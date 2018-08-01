@@ -39,6 +39,7 @@ public class ClientModule {
         m_face = face;
         m_retryTimes = retryTimes;
         m_keyChain = keyChain;
+        m_config = new ClientConfig();
     }
 
     // Interfaces used to define callback functions.
@@ -55,7 +56,7 @@ public class ClientModule {
         void onError(String errInfo);
     }
 
-    public void reuqestCaTrustAnchor(
+    public void requestCaTrustAnchor(
             Name caName,
             OnData trustAnchorCb, ErrorCallback errorCb
     ){
@@ -573,8 +574,6 @@ public class ClientModule {
     // Helper functions
     public ClientConfig getClientConfig() { return m_config; }
 
-    // TODO: Consult Zhiyi how to do Unit Test on it.
-    // This is an important function. I don't want to get it wrong.
     public JsonObject getJsonFromData(Data data) {
         String jsonString = data.getContent().toString();
         InputStream inputStrStream
@@ -583,13 +582,11 @@ public class ClientModule {
         return reader.readObject();
     }
 
-    // TODO: Also have to consult Zhiyi about Unit Test.
     public Blob nameBlockFromJson(JsonObject obj){
         String str = obj.toString();
         return new Blob(str);
     }
 
-    // TODO: To be tested.
     public final Boolean checkStatus(
             RequestState state, JsonObject json,
             ErrorCallback errorCb
@@ -622,7 +619,7 @@ public class ClientModule {
                 m_face.expressInterest(
                         interest,
                         dataCb,
-                        getTimeoutCallbackFunc(retryTimesLeft, dataCb, errorCb),
+                        getTimeoutCallbackFunc(retryTimesLeft - 1, dataCb, errorCb),
                         getNetworkNackCallbackFunc(errorCb));
             } catch (IOException e){
                 log.warning(e.getMessage());
