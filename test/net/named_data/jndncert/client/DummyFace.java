@@ -14,6 +14,7 @@ public class DummyFace extends Face {
             Interest interest,
             OnData onData, OnTimeout onTimeout, OnNetworkNack onNetworkNack
     ) throws IOException {
+        // Intercept interest and callback functions.
         interest_ = interest;
         onData_ = onData;
         return 0;

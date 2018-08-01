@@ -299,7 +299,6 @@ public class ClientModule {
             log.warning(e.getMessage());
         }
         log.info("NEW interest sent with identity " + identityName);
-
     }
 
     public void handleNewResponse(
@@ -348,6 +347,7 @@ public class ClientModule {
         JsonObject reqIdJson = jsonBuilder
                 .add(JsonHelper.JSON_REQUEST_ID, state.m_requestId)
                 .build();
+        // TODO: I don't think nameBlockFromJson is necessary but JsonObject.toString() is enough here.
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_SELECT")
                 .append(nameBlockFromJson(reqIdJson))
