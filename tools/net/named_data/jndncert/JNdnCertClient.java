@@ -2,15 +2,19 @@ package net.named_data.jndncert;
 
 import net.named_data.jndn.Face;
 import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndncert.challenge.ChallengeFactory;
 import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.client.ClientModule;
+import net.named_data.jndncert.client.RequestState;
 
-import javax.json.Json;
 import javax.json.JsonObject;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class JNdnCertClient {
     private int stepCnt = 0;
     private ClientModule client;
+    static private final Scanner scanner = new Scanner(System.in);
 
     public JNdnCertClient(ClientModule c){
         client = c;
@@ -29,44 +33,87 @@ public class JNdnCertClient {
                 "Certificate has already been installed to local keychain."
         );
     });
-    private ClientModule.RequestCallback validateCb = (state -> {
-        if (state.m_status.equals(ChallengeModule.SUCCESS)){
-            System.err.println("Done! Certificate has already been issued.");
-            client.requestDownload(state, downloadCb, errCb);
-            return;
-        }
-        // TODO: Handle failed case. Doing the valid again.
-        // In ndncert, the code below is the same with selectCb.
-        // Consider reuse it.
 
-    });
+    // Cannot use lambda expression as there is a self-referencing here
+    // When the validation fails another validation will be initiated
+    // and thus using self as a callback function.
+    private ClientModule.RequestCallback validateCb =
+            new ClientModule.RequestCallback() {
+        @Override
+        public void onRequest(RequestState state) {
+            if (state.m_status.equals(ChallengeModule.SUCCESS)){
+                System.err.println("Done! Certificate has already been issued.");
+                client.requestDownload(state, downloadCb, errCb);
+                return;
+            }
+            // Handle failed case. Doing the valid again.
+            // Gen challenge requirement
+            ChallengeModule challenge =
+                    ChallengeFactory.getChallenge(state.m_challengeType);
+            ArrayList<String> requirementList =
+                    challenge.getRequirementForValidate(state.m_status);
+
+            // Gather info to validate
+            stepGuide("Please satisfy following instruction(s)");
+            ArrayList<String> paramList = new ArrayList<>();
+            for (String str: requirementList){
+                System.err.println("\t" + str);
+                paramList.add(scanner.nextLine());
+            }
+
+            // Form a JSON
+            JsonObject paramJson =
+                    challenge.doGenValidateParamsJson(state.m_status, paramList);
+
+            // send Validate interest
+            client.sendValidate(state, paramJson, validateCb, errCb);
+        }
+    };
 
     private ClientModule.RequestCallback selectCb = (state -> {
-        // TODO: Gen challenge requirement
+        // Gen challenge requirement
+        ChallengeModule challenge =
+                ChallengeFactory.getChallenge(state.m_challengeType);
+        ArrayList<String> requirementList =
+                challenge.getRequirementForValidate(state.m_status);
 
+        // Gather info to validate
         stepGuide("Please satisfy following instruction(s)");
-        // TODO: Gather info to validate
+        ArrayList<String> paramList = new ArrayList<>();
+        for (String str: requirementList){
+            System.err.println("\t" + str);
+            paramList.add(scanner.nextLine());
+        }
 
-        // TODO: Form a JSON
+        // Form a JSON
+        JsonObject paramJson =
+                challenge.doGenValidateParamsJson(state.m_status, paramList);
 
-        // TODO: send Validate interest
-
+        // send Validate interest
+        client.sendValidate(state, paramJson, validateCb, errCb);
     });
 
     public ClientModule.RequestCallback newCb = (state -> {
         stepGuide("Please select one challenge from following types\n");
-        for (String c: state.m_challengeList){
-            System.err.println("\t" + c);
+        for (String str: state.m_challengeList){
+            System.err.println("\t" + str);
         }
-        // TODO: Input choice
-        String choice = "";
+        String choice = scanner.nextLine();
+        ChallengeModule challenge = ChallengeFactory.getChallenge(choice);
 
-        // TODO: Using choice generate a param json
-        JsonObject paramJson = Json.createObjectBuilder()
-                .add("empty", "").build();
-
-        // Send SELECT interest.
-        client.sendSelect(state, choice, paramJson, selectCb, errCb);
+        ArrayList<String> requirementList =
+                challenge.getRequirementForSelection();
+        ArrayList<String> paramList = new ArrayList<>();
+        if (requirementList.size() != 0){
+            stepGuide("Please fill answer following questions: ");
+            for (String str: requirementList){
+                System.err.println("\t" + str);
+                paramList.add(scanner.nextLine());
+            }
+        }
+        JsonObject paramJson =
+                challenge.genSelectParamsJson(state.m_status, paramList);
+        client.sendSelect(state, choice, paramJson, validateCb, errCb);
     });
 
     static public void main(String[] args) throws Exception {
@@ -77,6 +124,6 @@ public class JNdnCertClient {
         client.getClientConfig().load(configFilePath);
         JNdnCertClient certClient = new JNdnCertClient(client);
 
-        // TODO: initiate a NEW.
+
     }
 }
