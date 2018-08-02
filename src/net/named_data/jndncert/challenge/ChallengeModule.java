@@ -1,6 +1,5 @@
 package net.named_data.jndncert.challenge;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import java.util.ArrayList;
 import java.util.Random;
@@ -17,7 +16,7 @@ abstract public class ChallengeModule {
     // TODO: Eliminated all CA functions.
 
     // For Client
-    public ArrayList<String> gerRequirementForSelection(){
+    public ArrayList<String> getRequirementForSelection(){
         return null;
     }
 
@@ -40,8 +39,8 @@ abstract public class ChallengeModule {
         return null;
     }
 
-    abstract public ArrayList<String> genSelectRequirements();
-    abstract public ArrayList<String> genValidateRequirements();
+    abstract public ArrayList<String> getSelectRequirements();
+    abstract public ArrayList<String> getValidateRequirements(String status);
     abstract public JsonObject doGenSelectParamsJson(
             String status, ArrayList<String> paramList);
     abstract public JsonObject doGenValidateParamsJson(
