@@ -174,12 +174,12 @@ public class ClientModule {
                 contentJson.getString("recommended-identity", "");
         if (recommendedName.equals("")){
             JsonArray caJsonArray = contentJson.getJsonArray("ca-list");
-            for (int idx = 0; idx < caList.size(); idx++){
+            for (int idx = 0; idx < caJsonArray.size(); idx++){
                 JsonObject obj = caJsonArray.getJsonObject(idx);
                 caList.add(new Name(obj.getString("ca-prefix")));
             }
         } else {
-            Name caName = new Name(contentJson.getString("recomended-ca"));
+            Name caName = new Name(contentJson.getString("recommended-ca"));
             caList.add(caName);
             assignedName = caName.append(recommendedName);
         }
