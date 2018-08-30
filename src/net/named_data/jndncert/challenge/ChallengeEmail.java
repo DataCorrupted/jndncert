@@ -1,5 +1,6 @@
 package net.named_data.jndncert.challenge;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -54,13 +55,23 @@ public class ChallengeEmail extends ChallengeModule {
             String status, ArrayList<String> paramList){
         assert status.equals(WAIT_SELECTION);
         assert paramList.size() == 1;
-        return new JSONObject()
-                .put(JSON_EMAIL, paramList.get(0));
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put(JSON_EMAIL, paramList.get(0));
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
+        return obj;
     }
     public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList){
         assert paramList.size() == 1;
-        return new JSONObject()
-                .put(JSON_CODE, paramList.get(0));
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put(JSON_CODE, paramList.get(0));
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
+        return obj;
     }
 }

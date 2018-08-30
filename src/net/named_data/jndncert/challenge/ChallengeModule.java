@@ -4,13 +4,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Logger;
 
 abstract public class ChallengeModule {
     public static final String WAIT_SELECTION = "wait-selection";
     public static final String SUCCESS = "success";
     public static final String PENDING = "pending";
     public static final String FAILURE = "failure";
-
+    protected static final Logger log = Logger.getLogger("ChallengeModule");
     protected String CHALLENGE_TYPE = "";
     public ChallengeModule(){;}
 

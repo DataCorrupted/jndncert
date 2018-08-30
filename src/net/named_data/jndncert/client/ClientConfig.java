@@ -47,9 +47,9 @@ public class ClientConfig {
 
     public void load(JSONObject jsonObject){
         m_caItems.clear();
-        JSONArray arr = jsonObject.getJSONArray("ca-list");
+        JSONArray arr = jsonObject.optJSONArray("ca-list");
         for (int idx = 0; idx < arr.length(); idx++){
-            JSONObject temp_obj = arr.getJSONObject(idx);
+            JSONObject temp_obj = arr.optJSONObject(idx);
             m_caItems.add(extractCaItem(temp_obj));
         }
         m_localNdncertAnchor =

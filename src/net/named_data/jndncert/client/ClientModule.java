@@ -13,6 +13,7 @@ import net.named_data.jndn.util.Common;
 import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.common.JsonHelper;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -343,8 +344,13 @@ public class ClientModule {
             RequestState state, String challengeType, JSONObject selectParam,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JSONObject reqIdJson = new JSONObject()
-                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        JSONObject reqIdJson = new JSONObject();
+        try{
+            reqIdJson.put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
+
         // TODO: I don't think nameBlockFromJson is necessary but JSONObject.toString() is enough here.
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_SELECT")
@@ -407,8 +413,12 @@ public class ClientModule {
             RequestState state, JSONObject validateParam,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JSONObject reqIdJson = new JSONObject()
-                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        JSONObject reqIdJson = new JSONObject();
+        try {
+            reqIdJson.put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_VALIDATE")
                 .append(nameBlockFromJson(reqIdJson))
@@ -461,8 +471,12 @@ public class ClientModule {
             RequestState state,
             RequestCallback requstCb, ErrorCallback errorCb
     ){
-        JSONObject reqIdJson = new JSONObject()
-                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        JSONObject reqIdJson = new JSONObject();
+        try {
+            reqIdJson.put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_STATUS")
                 .append(nameBlockFromJson(reqIdJson));
@@ -511,8 +525,12 @@ public class ClientModule {
             RequestState state,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JSONObject reqIdJson = new JSONObject()
-                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        JSONObject reqIdJson = new JSONObject();
+        try {
+            reqIdJson.put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_DOWNLOAD")
                 .append(nameBlockFromJson(reqIdJson));

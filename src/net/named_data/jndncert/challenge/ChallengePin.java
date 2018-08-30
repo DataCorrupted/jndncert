@@ -1,5 +1,6 @@
 package net.named_data.jndncert.challenge;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ public class ChallengePin extends ChallengeModule {
     static public final String JSON_CODE_TP = "code-timepoint";
     static public final String JSON_PIN_CODE = "code";
     static public final String JSON_ATTEMPT_TIMES = "attempt-times";
-
     // TODO: not really useful now, unless you want a Java server.
     private int m_maxAttempTimes;
     private int m_secretLifeTimeSeconds;
@@ -54,7 +54,12 @@ public class ChallengePin extends ChallengeModule {
     public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList){
         assert paramList.size() == 1;
-        return new JSONObject()
-                .put(JSON_PIN_CODE, paramList.get(0));
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(JSON_PIN_CODE, paramList.get(0));
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+        }
+        return obj;
     }
 }
