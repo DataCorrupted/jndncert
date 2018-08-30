@@ -2,11 +2,13 @@ package net.named_data.jndncert.common;
 
 import net.named_data.jndn.Name;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class JsonHelper {
     static final public String JSON_IDENTIFIER = "identifier";
@@ -17,7 +19,7 @@ public class JsonHelper {
     static final public String JSON_CHALLENGE_TYPE = "challenge-type";
     static final public String JSON_FAILURE_INFO = "failure-info";
     static final public String JSON_CERTIFICATE = "certificate";
-
+    static final private Logger log = Logger.getLogger("JsonHelper");
     static public JSONObject genProbeResponseJson(
             Name identifier, Name caInfo
     ){
@@ -75,6 +77,12 @@ public class JsonHelper {
                 .put(JSON_FAILURE_INFO, failureInfo);
     }
     static public JSONObject string2Json(String str){
-        return new JSONObject(str);
+
+        try{
+            return new JSONObject(str);
+        } catch (JSONException e){
+            log.warning(e.getMessage());
+            return new JSONObject();
+        }
     }
 }

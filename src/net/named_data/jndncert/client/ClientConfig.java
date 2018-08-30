@@ -4,15 +4,15 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndncert.common.JsonHelper;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientConfig {
@@ -21,16 +21,28 @@ public class ClientConfig {
     public String m_localNdncertAnchor = "";
     private final Logger log = Logger.getLogger("ClientConfig");
 
+    private static String convertStreamToString(InputStream is) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
     public void load(String fileName){
-        File f = new File(fileName);
+        File file = new File(fileName);
+        FileInputStream fileIptStrm = null;
         String content = "";
-        try {
-            byte[] bytes = Files.readAllBytes(f.toPath());
-            content = new String(bytes,"UTF-8");
+        try{
+            fileIptStrm = new FileInputStream(file);
+            content = convertStreamToString(fileIptStrm);
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        load(new JSONObject(content));
+        load(JsonHelper.string2Json(content));
     }
 
     public void load(JSONObject jsonObject){

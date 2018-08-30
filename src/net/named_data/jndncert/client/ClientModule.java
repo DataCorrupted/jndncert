@@ -172,9 +172,9 @@ public class ClientModule {
         String recommendedName =
                 contentJson.optString("recommended-identity", "");
         if (recommendedName.equals("")){
-            JSONArray caJsonArray = contentJson.getJSONArray("ca-list");
+            JSONArray caJsonArray = contentJson.optJSONArray("ca-list");
             for (int idx = 0; idx < caJsonArray.length(); idx++){
-                JSONObject obj = caJsonArray.getJSONObject(idx);
+                JSONObject obj = caJsonArray.optJSONObject(idx);
                 caList.add(new Name(obj.optString("ca-prefix", "")));
             }
         } else {
@@ -324,10 +324,10 @@ public class ClientModule {
             return;
         }
 
-        JSONArray challenges = obj.getJSONArray(JsonHelper.JSON_CHALLENGES);
+        JSONArray challenges = obj.optJSONArray(JsonHelper.JSON_CHALLENGES);
         ArrayList<String> challengeList = new ArrayList<>();
         for (int idx = 0; idx < challenges.length(); idx++){
-            JSONObject o = challenges.getJSONObject(idx);
+            JSONObject o = challenges.optJSONObject(idx);
             challengeList.add(o.optString(JsonHelper.JSON_CHALLENGE_TYPE));
         }
         state.m_challengeList = challengeList;
