@@ -1,12 +1,13 @@
 package net.named_data.jndncert.challenge;
 
-import com.sun.media.jfxmedia.logging.Logger;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ChallengeFactory {
+    static private Logger log = Logger.getLogger("jNDNCert");
     private static Map<String, Class> map =
             Collections.unmodifiableMap(new HashMap<String,Class>() {{
                 put("Pin", ChallengePin.class);
@@ -22,7 +23,7 @@ public class ChallengeFactory {
         try{
             return (ChallengeModule) map.get(challenge).newInstance();
         } catch (Exception e){
-            Logger.logMsg(Logger.WARNING, e.getMessage());
+            log.log(Level.WARNING, e.getMessage());
         }
         return null;
     }
