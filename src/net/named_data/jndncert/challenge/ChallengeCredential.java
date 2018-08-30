@@ -1,6 +1,7 @@
 package net.named_data.jndncert.challenge;
 
-import javax.json.JsonObject;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class ChallengeCredential extends ChallengeModule {
@@ -12,11 +13,11 @@ public class ChallengeCredential extends ChallengeModule {
     public ArrayList<String> getValidateRequirements(String status){
         return null;
     }
-    public JsonObject doGenSelectParamsJson(
+    public JSONObject doGenSelectParamsJson(
             String status, ArrayList<String> paramList){
         return null;
     }
-    public JsonObject doGenValidateParamsJson(
+    public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList){
         return null;
     }

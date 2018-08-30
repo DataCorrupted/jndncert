@@ -1,5 +1,6 @@
 package net.named_data.jndncert.client
 
+import jdk.nashorn.internal.runtime.JSONListAdapter
 import net.named_data.jndn.Data
 import net.named_data.jndn.Interest
 import net.named_data.jndn.Name
@@ -10,9 +11,8 @@ import net.named_data.jndn.security.pib.PibKey
 import net.named_data.jndn.security.v2.CertificateV2
 import net.named_data.jndn.util.Blob
 import net.named_data.jndncert.common.JsonHelper
-
-import javax.json.Json
-import javax.json.JsonObject
+import org.json.JSONArray
+import org.json.JSONObject
 
 class ClientModuleTest extends GroovyTestCase {
     class ErrorCallback implements ClientModule.ErrorCallback{
@@ -31,13 +31,13 @@ class ClientModuleTest extends GroovyTestCase {
     SigningInfo signInfo
 
     void testInit() {
-        client.getClientConfig().load(
+        client.getClientConf().load(
                 "res/test/client.conf.test")
-        assert client.getClientConfig().m_caItems.size() == 2
+        assert client.getClientConf().m_caItems.size() == 2
     }
 
     void testSendNew(){
-        client.getClientConfig().load(
+        client.getClientConf().load(
                 "res/test/client.conf.test"
         )
         PibIdentity id = keyChain.createIdentityV2(new Name("/site"))
@@ -48,7 +48,7 @@ class ClientModuleTest extends GroovyTestCase {
         ClientCaItem item = new ClientCaItem()
         item.m_caName = new Name("/site/CA")
         item.m_anchor = cert
-        client.getClientConfig().m_caItems.add(item)
+        client.getClientConf().m_caItems.add(item)
         ClientModule.RequestCallback requestCb = new ClientModule.RequestCallback() {
             @Override
             void onRequest(RequestState state) {
@@ -71,7 +71,7 @@ class ClientModuleTest extends GroovyTestCase {
         ArrayList<String> challenges = new ArrayList<>()
         challenges.add("EMAIL")
         challenges.add("PIN")
-        JsonObject responseJson =
+        JSONObject responseJson =
                 JsonHelper.genNewResponseJson(
                         "69850764", "Status", challenges)
         Blob blob = client.nameBlockFromJson(responseJson)
@@ -83,13 +83,12 @@ class ClientModuleTest extends GroovyTestCase {
     void testSelect(){
         // pretend that we have send _NEW
         testSendNew()
-        JsonObject param = Json.createObjectBuilder()
-                .add("email-address", "rongyy@shanghaitech.edu.cn")
-                .add("emergency-contact", Json.createArrayBuilder()
-                    .add(Json.createObjectBuilder().add("name", "Ling Jiawei"))
-                    .add(Json.createObjectBuilder().add("name", "Gao Xin"))
+        JSONObject param = new JSONObject()
+                .put("email-address", "rongyy@shanghaitech.edu.cn")
+                .put("emergency-contact", new JSONArray()
+                    .put(new JSONObject().put("name", "Ling Jiawei"))
+                    .put(new JSONObject().put("name", "Gao Xin"))
                     )
-                .build()
         ClientModule.RequestCallback requestCb = new ClientModule.RequestCallback() {
             @Override
             void onRequest(RequestState state) {
@@ -104,7 +103,7 @@ class ClientModuleTest extends GroovyTestCase {
                 .toUri() == "/site/CA/_SELECT"
         Data data = new Data()
         data.setName(interest.getName())
-        JsonObject status = Json.createObjectBuilder().add("status", "Select").build()
+        JSONObject status = new JSONObject().put("status", "Select")
         Blob blob = client.nameBlockFromJson(status)
         data.setContent(blob)
         keyChain.sign(data, signInfo)
@@ -118,20 +117,20 @@ class ClientModuleTest extends GroovyTestCase {
                 "}"
         Data data = new Data(new Name("testData"))
                 .setContent(new Blob(jsonStr))
-        JsonObject object = client.getJsonFromData(data)
+        JSONObject object = client.getJsonFromData(data)
         assert object.getString("Name") == "Peter Rong"
         assert object.getString("School") == "ShanghaiTech University"
     }
 
     void testNameBlockFromJson() {
-        JsonObject object = Json.createObjectBuilder()
-                .add("Name", "Peter Rong")
-                .add("School", "ShanghaiTech University")
-                .build()
+        JSONObject object = new JSONObject()
+                .put("Name", "Peter Rong")
+                .put("School", "ShanghaiTech University")
+        System.out.println(object.toString())
         Blob blob = client.nameBlockFromJson(object)
         assert blob.toString() == "{" +
-                    "\"Name\":\"Peter Rong\"," +
-                    "\"School\":\"ShanghaiTech University\"" +
+                    "\"School\":\"ShanghaiTech University\"," +
+                    "\"Name\":\"Peter Rong\"" +
                 "}"
     }
 
@@ -142,9 +141,8 @@ class ClientModuleTest extends GroovyTestCase {
         // failure
         state.m_status = "failure"
         errCb.setExpected("Peter: This is an error info.")
-        JsonObject object = Json.createObjectBuilder()
-                .add(JsonHelper.JSON_FAILURE_INFO, errCb.getExpected())
-                .build()
+        JSONObject object = new JSONObject()
+                .put(JsonHelper.JSON_FAILURE_INFO, errCb.getExpected());
         checkResult = client.checkStatus(state, object, errCb)
         assert !checkResult
 

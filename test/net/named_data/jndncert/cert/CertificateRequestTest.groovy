@@ -5,9 +5,7 @@ import net.named_data.jndn.security.KeyChain
 import net.named_data.jndn.security.pib.PibIdentity
 import net.named_data.jndn.security.pib.PibKey
 import net.named_data.jndn.security.v2.CertificateV2
-
-import javax.json.Json
-import javax.json.JsonObject
+import org.json.JSONObject
 
 class CertificateRequestTest extends GroovyTestCase {
     KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:")
@@ -22,12 +20,10 @@ class CertificateRequestTest extends GroovyTestCase {
         assert request.getCaName().toUri() == "/ndn/shanghaitech"
         assert request.getRequestId() == "69850764"
         assert request.m_status == ""
-        assert request.m_challengeSecrets.isEmpty()
+        assert request.m_challengeSecrets.isNull()
         assert request.m_cert == cert;
 
-        JsonObject secret = Json.createObjectBuilder()
-                .add("code", "P.R.")
-                .build()
+        JSONObject secret = new JSONObject().put("code", "P.R.");
         request = new CertificateRequest(
                 new Name("/ndn/shanghaitech"), "69850764",
                 "need-verify", "EMAIL",
@@ -36,7 +32,7 @@ class CertificateRequestTest extends GroovyTestCase {
         assert request.getRequestId() == "69850764"
         assert request.m_status == "need-verify"
         assert request.m_challengeType == "EMAIL"
-        assert request.m_challengeSecrets == secret
+        assert request.m_challengeSecrets.toString() == secret.toString()
         assert request.m_cert == cert
     }
     // TODO: finish test toString() when you have indent for m_cert done.

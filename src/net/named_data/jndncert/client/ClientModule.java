@@ -12,11 +12,10 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.common.JsonHelper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.json.*;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -120,7 +119,7 @@ public class ClientModule {
             return;
         }
 
-        JsonObject contentJson = getJsonFromData(reply);
+        JSONObject contentJson = getJsonFromData(reply);
         ClientConfig config = new ClientConfig();
         config.load(contentJson);
         listCb.onLocalhostList(config);
@@ -167,19 +166,19 @@ public class ClientModule {
 
         ArrayList<Name> caList = new ArrayList<>();
         Name assignedName = new Name();
-        JsonObject contentJson = getJsonFromData(reply);
+        JSONObject contentJson = getJsonFromData(reply);
         Name schemaDataName =
-                new Name(contentJson.getString("trust-schema", ""));
+                new Name(contentJson.optString("trust-schema", ""));
         String recommendedName =
-                contentJson.getString("recommended-identity", "");
+                contentJson.optString("recommended-identity", "");
         if (recommendedName.equals("")){
-            JsonArray caJsonArray = contentJson.getJsonArray("ca-list");
-            for (int idx = 0; idx < caJsonArray.size(); idx++){
-                JsonObject obj = caJsonArray.getJsonObject(idx);
-                caList.add(new Name(obj.getString("ca-prefix")));
+            JSONArray caJsonArray = contentJson.getJSONArray("ca-list");
+            for (int idx = 0; idx < caJsonArray.length(); idx++){
+                JSONObject obj = caJsonArray.getJSONObject(idx);
+                caList.add(new Name(obj.optString("ca-prefix", "")));
             }
         } else {
-            Name caName = new Name(contentJson.getString("recommended-ca"));
+            Name caName = new Name(contentJson.optString("recommended-ca", ""));
             caList.add(caName);
             assignedName = caName.append(recommendedName);
         }
@@ -221,9 +220,9 @@ public class ClientModule {
             );
             return;
         }
-        JsonObject contentJson = getJsonFromData(reply);
+        JSONObject contentJson = getJsonFromData(reply);
         String idNameStr =
-                contentJson.getString(JsonHelper.JSON_IDENTIFIER, "");
+                contentJson.optString(JsonHelper.JSON_IDENTIFIER);
         if (!idNameStr.equals("")){
             Name idName = new Name(idNameStr);
             sendNew(ca, idName, requestCb, errorCb);
@@ -316,20 +315,20 @@ public class ClientModule {
             return;
         }
 
-        JsonObject obj = getJsonFromData(reply);
-        state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
-        state.m_requestId = obj.getString(JsonHelper.JSON_REQUEST_ID, "");
+        JSONObject obj = getJsonFromData(reply);
+        state.m_status = obj.optString(JsonHelper.JSON_STATUS);
+        state.m_requestId = obj.optString(JsonHelper.JSON_REQUEST_ID);
 
         // Status failed.
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
 
-        JsonArray challenges = obj.getJsonArray(JsonHelper.JSON_CHALLENGES);
+        JSONArray challenges = obj.getJSONArray(JsonHelper.JSON_CHALLENGES);
         ArrayList<String> challengeList = new ArrayList<>();
-        for (int idx = 0; idx < challenges.size(); idx++){
-            JsonObject o = challenges.getJsonObject(idx);
-            challengeList.add(o.getString(JsonHelper.JSON_CHALLENGE_TYPE));
+        for (int idx = 0; idx < challenges.length(); idx++){
+            JSONObject o = challenges.getJSONObject(idx);
+            challengeList.add(o.optString(JsonHelper.JSON_CHALLENGE_TYPE));
         }
         state.m_challengeList = challengeList;
         requestCb.onRequest(state);
@@ -341,14 +340,12 @@ public class ClientModule {
     }
 
     public void sendSelect(
-            RequestState state, String challengeType, JsonObject selectParam,
+            RequestState state, String challengeType, JSONObject selectParam,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-        JsonObject reqIdJson = jsonBuilder
-                .add(JsonHelper.JSON_REQUEST_ID, state.m_requestId)
-                .build();
-        // TODO: I don't think nameBlockFromJson is necessary but JsonObject.toString() is enough here.
+        JSONObject reqIdJson = new JSONObject()
+                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
+        // TODO: I don't think nameBlockFromJson is necessary but JSONObject.toString() is enough here.
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_SELECT")
                 .append(nameBlockFromJson(reqIdJson))
@@ -390,14 +387,14 @@ public class ClientModule {
            );
            return;
         }
-        JsonObject obj = getJsonFromData(reply);
+        JSONObject obj = getJsonFromData(reply);
         log.info(
                 "SELECT response would change the status" +
                         " from " + state.m_status +
-                        " to " + obj.getString(JsonHelper.JSON_STATUS)
+                        " to " + obj.optString(JsonHelper.JSON_STATUS)
         );
 
-        state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
+        state.m_status = obj.optString(JsonHelper.JSON_STATUS);
         // Status failed.
         if (!checkStatus(state, obj, errorCb)){
             return;
@@ -407,13 +404,11 @@ public class ClientModule {
     }
 
     public void sendValidate(
-            RequestState state, JsonObject validateParam,
+            RequestState state, JSONObject validateParam,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-        JsonObject reqIdJson = jsonBuilder
-                .add(JsonHelper.JSON_REQUEST_ID, state.m_requestId)
-                .build();
+        JSONObject reqIdJson = new JSONObject()
+                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_VALIDATE")
                 .append(nameBlockFromJson(reqIdJson))
@@ -453,8 +448,8 @@ public class ClientModule {
             );
             return;
         }
-        JsonObject obj = getJsonFromData(reply);
-        state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
+        JSONObject obj = getJsonFromData(reply);
+        state.m_status = obj.optString(JsonHelper.JSON_STATUS);
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
@@ -466,10 +461,8 @@ public class ClientModule {
             RequestState state,
             RequestCallback requstCb, ErrorCallback errorCb
     ){
-        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-        JsonObject reqIdJson = jsonObjectBuilder
-                .add(JsonHelper.JSON_REQUEST_ID, state.m_requestId)
-                .build();
+        JSONObject reqIdJson = new JSONObject()
+                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_STATUS")
                 .append(nameBlockFromJson(reqIdJson));
@@ -506,8 +499,8 @@ public class ClientModule {
             );
             return;
         }
-        JsonObject obj = getJsonFromData(reply);
-        state.m_status = obj.getString(JsonHelper.JSON_STATUS, "");
+        JSONObject obj = getJsonFromData(reply);
+        state.m_status = obj.optString(JsonHelper.JSON_STATUS);
         if (!checkStatus(state, obj, errorCb)){
             return;
         }
@@ -518,10 +511,8 @@ public class ClientModule {
             RequestState state,
             RequestCallback requestCb, ErrorCallback errorCb
     ){
-        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-        JsonObject reqIdJson = jsonObjectBuilder
-                .add(JsonHelper.JSON_REQUEST_ID, state.m_requestId)
-                .build();
+        JSONObject reqIdJson = new JSONObject()
+                .put(JsonHelper.JSON_REQUEST_ID, state.m_requestId);
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_DOWNLOAD")
                 .append(nameBlockFromJson(reqIdJson));
@@ -575,24 +566,23 @@ public class ClientModule {
     // Helper functions
     public ClientConfig getClientConf() { return m_config; }
 
-    public JsonObject getJsonFromData(Data data) {
+    public JSONObject getJsonFromData(Data data) {
         String jsonString = data.getContent().toString();
         return JsonHelper.string2Json(jsonString);
     }
 
-    public Blob nameBlockFromJson(JsonObject obj){
+    public Blob nameBlockFromJson(JSONObject obj){
         String str = obj.toString();
         return new Blob(str);
     }
 
     public final Boolean checkStatus(
-            RequestState state, JsonObject json,
+            RequestState state, JSONObject json,
             ErrorCallback errorCb
     ){
         if (state.m_status.equals(ChallengeModule.FAILURE)){
             errorCb.onError(
-                    json.getString(JsonHelper.JSON_FAILURE_INFO,
-                    ""));
+                    json.optString(JsonHelper.JSON_FAILURE_INFO));
             return false;
         }
         if (state.m_requestId.isEmpty() || state.m_status.isEmpty()){

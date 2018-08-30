@@ -1,6 +1,6 @@
 package net.named_data.jndncert.challenge
 
-import javax.json.JsonObject
+import org.json.JSONObject
 
 class ChallengePinTest extends GroovyTestCase {
     void testGetSelectRequirementsAndGenParamsJson() {
@@ -9,9 +9,9 @@ class ChallengePinTest extends GroovyTestCase {
                 challengePin.getSelectRequirements()
         assert requirementList.size() == 0
 
-        JsonObject obj = challengePin.doGenSelectParamsJson(
+        JSONObject obj = challengePin.doGenSelectParamsJson(
                 ChallengeModule.WAIT_SELECTION, requirementList)
-        assert obj.isEmpty()
+        assert obj.isNull()
     }
 
     void testGetValidateRequirementsAndGetParamsJson() {
@@ -23,9 +23,9 @@ class ChallengePinTest extends GroovyTestCase {
 
         requirementList.clear();
         requirementList.add("961030")
-        JsonObject obj = challengePin.doGenValidateParamsJson(
+        JSONObject obj = challengePin.doGenValidateParamsJson(
                 ChallengePin.NEED_CODE, requirementList
         )
-        assert obj.getString(ChallengePin.JSON_PIN_CODE, "") == "961030"
+        assert obj.optString(ChallengePin.JSON_PIN_CODE, "") == "961030"
     }
 }

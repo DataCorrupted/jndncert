@@ -1,6 +1,6 @@
 package net.named_data.jndncert.challenge
 
-import javax.json.JsonObject
+import org.json.JSONObject
 
 
 class ChallengeEmailTest extends GroovyTestCase {
@@ -13,9 +13,9 @@ class ChallengeEmailTest extends GroovyTestCase {
 
         requirementList.clear();
         requirementList.add("PeterRong96@gmail.com")
-        JsonObject obj = challengeEmail.doGenSelectParamsJson(
+        JSONObject obj = challengeEmail.doGenSelectParamsJson(
                 ChallengeEmail.WAIT_SELECTION, requirementList)
-        assert obj.getString(ChallengeEmail.JSON_EMAIL, "") == "PeterRong96@gmail.com"
+        assert obj.optString(ChallengeEmail.JSON_EMAIL, "") == "PeterRong96@gmail.com"
     }
 
     void testGetValidateRequirementsAndGenParamsJson() {
@@ -27,9 +27,9 @@ class ChallengeEmailTest extends GroovyTestCase {
 
         requirementList.clear()
         requirementList.add("961030")
-        JsonObject obj = challengeEmail.doGenValidateParamsJson(
+        JSONObject obj = challengeEmail.doGenValidateParamsJson(
                 ChallengeEmail.NEED_CODE, requirementList
         )
-        assert obj.getString(ChallengeEmail.JSON_CODE, "") == "961030"
+        assert obj.optString(ChallengeEmail.JSON_CODE, "") == "961030"
     }
 }

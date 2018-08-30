@@ -1,6 +1,7 @@
 package net.named_data.jndncert.challenge;
 
-import javax.json.JsonObject;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -26,14 +27,14 @@ abstract public class ChallengeModule {
     }
 
     // For Client
-    public JsonObject genSelectParamsJson(
+    public JSONObject genSelectParamsJson(
             String status, ArrayList<String> paramList
     ){
         return null;
     }
 
     // For Client
-    public JsonObject genValidateParamsJson(
+    public JSONObject genValidateParamsJson(
             String status, ArrayList<String> paramList
     ){
         return null;
@@ -41,9 +42,9 @@ abstract public class ChallengeModule {
 
     abstract public ArrayList<String> getSelectRequirements();
     abstract public ArrayList<String> getValidateRequirements(String status);
-    abstract public JsonObject doGenSelectParamsJson(
+    abstract public JSONObject doGenSelectParamsJson(
             String status, ArrayList<String> paramList);
-    abstract public JsonObject doGenValidateParamsJson(
+    abstract public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList);
 
     static public String generateSecretCode(){

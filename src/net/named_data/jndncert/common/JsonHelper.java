@@ -1,8 +1,9 @@
 package net.named_data.jndncert.common;
 
 import net.named_data.jndn.Name;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.json.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,68 +18,63 @@ public class JsonHelper {
     static final public String JSON_FAILURE_INFO = "failure-info";
     static final public String JSON_CERTIFICATE = "certificate";
 
-    static public JsonObject genProbeResponseJson(
+    static public JSONObject genProbeResponseJson(
             Name identifier, Name caInfo
     ){
-        return Json.createObjectBuilder()
-                .add(JSON_IDENTIFIER, identifier.toUri())
-                .add(JSON_CA_INFO, caInfo.toUri())
-                .build();
+        return new JSONObject()
+                .put(JSON_IDENTIFIER, identifier.toUri())
+                .put(JSON_CA_INFO, caInfo.toUri());
     }
 
-    static public JsonObject genNewResponseJson(
+    static public JSONObject genNewResponseJson(
             String requestId, String status, ArrayList<String> challenges
     ){
-        JsonObjectBuilder objBuilder = Json.createObjectBuilder();
-        objBuilder = objBuilder
-                .add(JSON_REQUEST_ID, requestId)
-                .add(JSON_STATUS, status);
-        JsonArrayBuilder array = Json.createArrayBuilder();
+        JSONObject obj = new JSONObject()
+                .put(JSON_REQUEST_ID, requestId)
+                .put(JSON_STATUS, status);
+        JSONArray array = new JSONArray();
         for (String c: challenges){
-            array = array.add(Json.createObjectBuilder()
-                    .add(JSON_CHALLENGE_TYPE, c));
+            array = array.put(
+                    new JSONObject()
+                            .put(JSON_CHALLENGE_TYPE, c)
+            );
         }
-        objBuilder = objBuilder.add(JSON_CHALLENGES, array);
-        return objBuilder.build();
+        obj.put(JSON_CHALLENGES, array);
+        return obj;
     }
 
-    static public JsonObject genChallengeResponseJson(
+    static public JSONObject genChallengeResponseJson(
             String requestId, String challengeType, String status
     ){
         return genChallengeResponseJson(
                 requestId, challengeType, status, new Name());
     }
-    static public JsonObject genChallengeResponseJson(
+    static public JSONObject genChallengeResponseJson(
             String requestId, String challengeType,
             String status, Name name
     ){
-        JsonObjectBuilder objBuilder = Json.createObjectBuilder();
-        objBuilder = objBuilder
-                .add(JSON_REQUEST_ID, requestId)
-                .add(JSON_CHALLENGE_TYPE, challengeType)
-                .add(JSON_STATUS, status);
+        JSONObject obj = new JSONObject()
+                .put(JSON_REQUEST_ID, requestId)
+                .put(JSON_CHALLENGE_TYPE, challengeType)
+                .put(JSON_STATUS, status);
         // TODO: This is weird, new Name() gets me "/"
         if (! name.toUri().equals("/") && ! name.toUri().isEmpty()){
-            objBuilder = objBuilder.add(JSON_CERTIFICATE, name.toUri());
+            obj.put(JSON_CERTIFICATE, name.toUri());
         }
-        return objBuilder.build();
+        return obj;
     }
 
-    static public JsonObject genFailureJson(
+    static public JSONObject genFailureJson(
             String requestId, String challengeType,
             String status, String failureInfo
     ){
-        return Json.createObjectBuilder()
-                .add(JSON_REQUEST_ID, requestId)
-                .add(JSON_CHALLENGE_TYPE, challengeType)
-                .add(JSON_STATUS, status)
-                .add(JSON_FAILURE_INFO, failureInfo)
-                .build();
+        return new JSONObject()
+                .put(JSON_REQUEST_ID, requestId)
+                .put(JSON_CHALLENGE_TYPE, challengeType)
+                .put(JSON_STATUS, status)
+                .put(JSON_FAILURE_INFO, failureInfo);
     }
-    static public JsonObject string2Json(String str){
-        InputStream inputStrStream
-                = new ByteArrayInputStream(str.getBytes());
-        JsonReader reader = Json.createReader(inputStrStream);
-        return reader.readObject();
+    static public JSONObject string2Json(String str){
+        return new JSONObject(str);
     }
 }

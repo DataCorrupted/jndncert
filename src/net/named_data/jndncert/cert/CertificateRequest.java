@@ -3,8 +3,7 @@ package net.named_data.jndncert.cert;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndncert.common.JsonHelper;
-
-import javax.json.JsonObject;
+import org.json.JSONObject;
 
 public class CertificateRequest {
     private Name m_caName;
@@ -13,7 +12,7 @@ public class CertificateRequest {
     // This doesn't make sense since you might as well set them as public.
     public String m_status;
     public String m_challengeType;
-    public JsonObject m_challengeSecrets;
+    public JSONObject m_challengeSecrets;
     public  CertificateV2 m_cert;
 
     public CertificateRequest(){

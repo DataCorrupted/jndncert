@@ -4,18 +4,15 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Common;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientConfig {
@@ -25,27 +22,26 @@ public class ClientConfig {
     private final Logger log = Logger.getLogger("ClientConfig");
 
     public void load(String fileName){
+        File f = new File(fileName);
+        String content = "";
         try {
-            File f = new File(fileName);
-            InputStream inputFileStream = new FileInputStream(f);
-            JsonReader reader = Json.createReader(inputFileStream);
-            JsonObject obj = reader.readObject();
-            load(obj);
-            reader.close();
-        } catch (FileNotFoundException e) {
+            byte[] bytes = Files.readAllBytes(f.toPath());
+            content = new String(bytes,"UTF-8");
+        } catch (IOException e){
             log.warning(e.getMessage());
-        };
+        }
+        load(new JSONObject(content));
     }
 
-    public void load(JsonObject jsonObject){
+    public void load(JSONObject jsonObject){
         m_caItems.clear();
-        JsonArray arr = jsonObject.getJsonArray("ca-list");
-        for (int idx = 0; idx < arr.size(); idx++){
-            JsonObject temp_obj = arr.getJsonObject(idx);
+        JSONArray arr = jsonObject.getJSONArray("ca-list");
+        for (int idx = 0; idx < arr.length(); idx++){
+            JSONObject temp_obj = arr.getJSONObject(idx);
             m_caItems.add(extractCaItem(temp_obj));
         }
         m_localNdncertAnchor =
-                jsonObject.getString("local-ndncert-anchor", "");
+                jsonObject.optString("local-ndncert-anchor");
     }
 
     public void addNewCaItem(ClientCaItem item){
@@ -57,19 +53,19 @@ public class ClientConfig {
         m_caItems.removeIf(caPredicate);
     }
 
-    private ClientCaItem extractCaItem(JsonObject jsonObj){
+    private ClientCaItem extractCaItem(JSONObject jsonObj){
         ClientCaItem ca_item = new ClientCaItem();
 
         // If these items are not there, Json parser will throw an NullPointerException
         // because the library is converting a nullptr to a String, which is meaningless.
-        ca_item.m_caName = new Name(jsonObj.getString("ca-prefix"));
-        ca_item.m_caInfo = jsonObj.getString("ca-info", "");
-        ca_item.m_probe = jsonObj.getString("probe", "");
+        ca_item.m_caName = new Name(jsonObj.optString("ca-prefix"));
+        ca_item.m_caInfo = jsonObj.optString("ca-info", "");
+        ca_item.m_probe = jsonObj.optString("probe", "");
         ca_item.m_isListEnabled =
-                jsonObj.getString("is-list-enabled", "").equals("true");
-        ca_item.m_targetedList = jsonObj.getString("target-list", "");
+                jsonObj.optString("is-list-enabled", "").equals("true");
+        ca_item.m_targetedList = jsonObj.optString("target-list", "");
 
-        final byte[] certBytes = Common.base64Decode(jsonObj.getString("certificate"));
+        final byte[] certBytes = Common.base64Decode(jsonObj.optString("certificate"));
         try{
             ca_item.m_anchor = new CertificateV2();
             ca_item.m_anchor.wireDecode(ByteBuffer.wrap(certBytes));

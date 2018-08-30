@@ -1,7 +1,7 @@
 package net.named_data.jndncert.challenge;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class ChallengePin extends ChallengeModule {
@@ -45,17 +45,16 @@ public class ChallengePin extends ChallengeModule {
         return result;
     }
 
-    public JsonObject doGenSelectParamsJson(
+    public JSONObject doGenSelectParamsJson(
             String status, ArrayList<String> paramList){
         assert status.equals(WAIT_SELECTION);
         assert paramList.size() == 0;
-        return Json.createObjectBuilder().build();
+        return new JSONObject();
     }
-    public JsonObject doGenValidateParamsJson(
+    public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList){
         assert paramList.size() == 1;
-        return Json.createObjectBuilder()
-                .add(JSON_PIN_CODE, paramList.get(0))
-                .build();
+        return new JSONObject()
+                .put(JSON_PIN_CODE, paramList.get(0));
     }
 }

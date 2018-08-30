@@ -6,8 +6,8 @@ import net.named_data.jndncert.challenge.ChallengeFactory;
 import net.named_data.jndncert.challenge.ChallengeModule;
 import net.named_data.jndncert.client.ClientModule;
 import net.named_data.jndncert.client.RequestState;
+import org.json.JSONObject;
 
-import javax.json.JsonObject;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -62,7 +62,7 @@ public class JNdnCertClient {
             }
 
             // Form a JSON
-            JsonObject paramJson =
+            JSONObject paramJson =
                     challenge.doGenValidateParamsJson(state.m_status, paramList);
 
             // send Validate interest
@@ -86,7 +86,7 @@ public class JNdnCertClient {
         }
 
         // Form a JSON
-        JsonObject paramJson =
+        JSONObject paramJson =
                 challenge.doGenValidateParamsJson(state.m_status, paramList);
 
         // send Validate interest
@@ -111,7 +111,7 @@ public class JNdnCertClient {
                 paramList.add(scanner.nextLine());
             }
         }
-        JsonObject paramJson =
+        JSONObject paramJson =
                 challenge.genSelectParamsJson(state.m_status, paramList);
         client.sendSelect(state, choice, paramJson, validateCb, errCb);
     });
@@ -121,7 +121,7 @@ public class JNdnCertClient {
         String configFilePath = "res/test/client.conf.test";
 
         ClientModule client = new ClientModule(new Face(), new KeyChain());
-        client.getClientConfig().load(configFilePath);
+        client.getClientConf().load(configFilePath);
         JNdnCertClient certClient = new JNdnCertClient(client);
 
 
