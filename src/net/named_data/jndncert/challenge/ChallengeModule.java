@@ -13,7 +13,7 @@ abstract public class ChallengeModule {
     public static final String FAILURE = "failure";
     protected static final Logger log = Logger.getLogger("ChallengeModule");
     protected String CHALLENGE_TYPE = "";
-    public ChallengeModule(){;}
+    public ChallengeModule(){}
 
     // TODO: Eliminated all CA functions.
 

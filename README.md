@@ -8,11 +8,10 @@ A package written in Java that resembles [ndncert](https://github.com/named-data
 
 Please refer to [here](https://github.com/named-data/jndn) for installation details.
 
-### javax.json
+### org.json:20160810
 
-Please go and download these two _jar_ files before you compile.
+You can get it from maven:
 
-	wget https://mvnrepository.com/artifact/org.glassfish/javax.json/1.0
-	wget https://mvnrepository.com/artifact/javax.json/javax.json-api/1.0
+https://mvnrepository.com/artifact/org.json/json
 
-For detailed API refer to [here](https://docs.oracle.com/javaee/7/api/javax/json/package-summary.html)
+
