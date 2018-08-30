@@ -573,7 +573,7 @@ public class ClientModule {
     }
 
     // Helper functions
-    public ClientConfig getClientConfig() { return m_config; }
+    public ClientConfig getClientConf() { return m_config; }
 
     public JsonObject getJsonFromData(Data data) {
         String jsonString = data.getContent().toString();

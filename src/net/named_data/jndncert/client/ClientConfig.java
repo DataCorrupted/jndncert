@@ -48,9 +48,9 @@ public class ClientConfig {
                 jsonObject.getString("local-ndncert-anchor", "");
     }
 
-    // TODO: This function appeared in the ndncert, yet it's never implemented.
-    // Please implement it after ndncert gets updated.
-    public void addNewCaItem(ClientCaItem item){ ; }
+    public void addNewCaItem(ClientCaItem item){
+        m_caItems.add(item);
+    }
 
     public void removeCaItem(Name caName){
         Predicate<ClientCaItem> caPredicate = p -> p.m_caName.toUri().equals(caName.toUri());
