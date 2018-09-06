@@ -4,8 +4,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
-public class ChallengeEmail extends ChallengeModule {
+public class ChallengeEmail implements ChallengeModule {
     protected static final String CHALLENGE_TYPE = "Email";
 
     static final public String NEED_CODE = "need-code";
@@ -24,6 +25,7 @@ public class ChallengeEmail extends ChallengeModule {
     private int m_maxAttemptTimes;
     private int m_secretLifeTimeMinutes;
 
+    private Logger log = Logger.getLogger("ChallengeEmail");
     // Again, Not really useful unless you implement CA server.
     public ChallengeEmail(){
         this("", 3, 20);
@@ -42,16 +44,16 @@ public class ChallengeEmail extends ChallengeModule {
     }
     public ArrayList<String> getValidateRequirements(String status){
         ArrayList<String> result = new ArrayList<>();
-        if (status == NEED_CODE){
+        if (status.equals(NEED_CODE)){
             result.add("Please input your verification code: ");
-        } else if (status == WRONG_CODE){
+        } else if (status.equals(WRONG_CODE)){
             result.add("Incorrect PIN code, please retry: ");
         } else {
             result.add("Invalid status. This should not happen, please contact your administrator.");
         }
         return result;
     }
-    public JSONObject doGenSelectParamsJson(
+    public JSONObject genSelectParamsJson(
             String status, ArrayList<String> paramList){
         assert status.equals(WAIT_SELECTION);
         assert paramList.size() == 1;
@@ -63,7 +65,7 @@ public class ChallengeEmail extends ChallengeModule {
         }
         return obj;
     }
-    public JSONObject doGenValidateParamsJson(
+    public JSONObject genValidateParamsJson(
             String status, ArrayList<String> paramList){
         assert paramList.size() == 1;
         JSONObject obj = new JSONObject();

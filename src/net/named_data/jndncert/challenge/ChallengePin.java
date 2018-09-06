@@ -4,8 +4,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
-public class ChallengePin extends ChallengeModule {
+public class ChallengePin implements ChallengeModule {
     protected static final String CHALLENGE_TYPE = "Pin";
 
     static public final String NEED_CODE = "need-code";
@@ -19,6 +20,7 @@ public class ChallengePin extends ChallengeModule {
     private int m_maxAttempTimes;
     private int m_secretLifeTimeSeconds;
 
+    private Logger log = Logger.getLogger("ChallengePin");
     public ChallengePin(){
         this(3, 3600);
     }
@@ -35,9 +37,9 @@ public class ChallengePin extends ChallengeModule {
 
     public ArrayList<String> getValidateRequirements(String status){
         ArrayList<String> result = new ArrayList<>();
-        if (status == NEED_CODE){
+        if (status.equals(NEED_CODE)){
             result.add("Please input your verification code: ");
-        } else if (status == WRONG_CODE){
+        } else if (status.equals(WRONG_CODE)){
             result.add("Incorrect PIN code, please retry: ");
         } else {
             result.add("Invalid status. This should not happen, please contact your administrator.");
@@ -45,13 +47,13 @@ public class ChallengePin extends ChallengeModule {
         return result;
     }
 
-    public JSONObject doGenSelectParamsJson(
+    public JSONObject genSelectParamsJson(
             String status, ArrayList<String> paramList){
         assert status.equals(WAIT_SELECTION);
         assert paramList.size() == 0;
         return new JSONObject();
     }
-    public JSONObject doGenValidateParamsJson(
+    public JSONObject genValidateParamsJson(
             String status, ArrayList<String> paramList){
         assert paramList.size() == 1;
         JSONObject obj = new JSONObject();
