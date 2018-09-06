@@ -9,8 +9,8 @@ public interface ChallengeModule {
     String SUCCESS = "success";
     String PENDING = "pending";
     String FAILURE = "failure";
-    String CHALLENGE_TYPE = "";
 
+    String getChallengeType();
     ArrayList<String> getSelectRequirements();
     ArrayList<String> getValidateRequirements(String status);
     JSONObject genSelectParamsJson(

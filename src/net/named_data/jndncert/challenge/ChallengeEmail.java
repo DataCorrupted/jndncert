@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class ChallengeEmail implements ChallengeModule {
-    protected static final String CHALLENGE_TYPE = "Email";
+    private static final String CHALLENGE_TYPE = "Email";
+    public String getChallengeType(){ return CHALLENGE_TYPE; }
 
     static final public String NEED_CODE = "need-code";
     static final public String WRONG_CODE = "wrong-code";

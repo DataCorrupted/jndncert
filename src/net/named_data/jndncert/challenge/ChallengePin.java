@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class ChallengePin implements ChallengeModule {
-    protected static final String CHALLENGE_TYPE = "Pin";
+    private static final String CHALLENGE_TYPE = "Pin";
+    public String getChallengeType(){ return CHALLENGE_TYPE; }
 
     static public final String NEED_CODE = "need-code";
     static public final String WRONG_CODE = "wrong-code";

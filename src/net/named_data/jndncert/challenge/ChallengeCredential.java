@@ -6,7 +6,8 @@ import java.util.ArrayList;
 
 public class ChallengeCredential implements ChallengeModule {
     // TODO: Fill this class
-    protected static final String CHALLENGE_TYPE = "Credential";
+    private static final String CHALLENGE_TYPE = "Credential";
+    public String getChallengeType(){ return CHALLENGE_TYPE; }
     public ArrayList<String> getSelectRequirements(){
         return null;
     }
