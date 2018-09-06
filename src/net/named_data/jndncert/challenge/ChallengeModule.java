@@ -15,30 +15,29 @@ abstract public class ChallengeModule {
     protected String CHALLENGE_TYPE = "";
     public ChallengeModule(){}
 
-    // TODO: Eliminated all CA functions.
-
+    // TODO: I don't think the following is necessary.
     // For Client
     public ArrayList<String> getRequirementForSelection(){
-        return null;
+        return getSelectRequirements();
     }
 
     // For Client
     public ArrayList<String> getRequirementForValidate(String status){
-        return null;
+        return getValidateRequirements(status);
     }
 
     // For Client
     public JSONObject genSelectParamsJson(
             String status, ArrayList<String> paramList
     ){
-        return null;
+        return doGenSelectParamsJson(status, paramList);
     }
 
     // For Client
     public JSONObject genValidateParamsJson(
             String status, ArrayList<String> paramList
     ){
-        return null;
+        return doGenValidateParamsJson(status, paramList);
     }
 
     abstract public ArrayList<String> getSelectRequirements();
@@ -47,9 +46,4 @@ abstract public class ChallengeModule {
             String status, ArrayList<String> paramList);
     abstract public JSONObject doGenValidateParamsJson(
             String status, ArrayList<String> paramList);
-
-    static public String generateSecretCode(){
-        int secretInt = new Random().nextInt(1000000);
-        return String.format("%06d", secretInt);
-    }
 }

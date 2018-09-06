@@ -19,7 +19,7 @@ public class ChallengeFactory {
         map.put(n, c);
     }
 
-    public static ChallengeModule getChallenge(String challenge){
+    public static ChallengeModule createChallengeModule(String challenge){
         try{
             return (ChallengeModule) map.get(challenge).newInstance();
         } catch (Exception e){
