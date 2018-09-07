@@ -32,10 +32,10 @@ public class ChallengeEmail implements ChallengeModule {
         this("", 3, 20);
     }
     public ChallengeEmail(String scriptPath, int maxAttemptTimes, int secretLifeTimeMinutes){
-        super();
         m_scriptPath = scriptPath;
         m_maxAttemptTimes = maxAttemptTimes;
         m_secretLifeTimeMinutes = secretLifeTimeMinutes;
+        //ChallengeFactory.registerChallenge("Email", this);
     }
 
     public ArrayList<String> getSelectRequirements(){

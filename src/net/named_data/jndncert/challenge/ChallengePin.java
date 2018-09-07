@@ -26,9 +26,10 @@ public class ChallengePin implements ChallengeModule {
         this(3, 3600);
     }
     public ChallengePin(int maxAttempTimes, int secretLifeTimeSeconds){
-        super();
         m_maxAttempTimes = maxAttempTimes;
         m_secretLifeTimeSeconds = secretLifeTimeSeconds;
+        // TODO: This is what I want to do in the future.
+        // ChallengeFactory.registerChallenge("Pin", this);
     }
 
     // There is no requirement if you want to use Pin as  challenge.

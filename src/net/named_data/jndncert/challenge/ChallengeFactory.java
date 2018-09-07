@@ -15,8 +15,8 @@ public class ChallengeFactory {
                 put("Credential", ChallengeCredential.class);
             }});
 
-    public static void registerChallenge(String n, Class<ChallengeModule> c){
-        map.put(n, c);
+    public static void registerChallenge(String name, ChallengeModule object){
+        map.put(name, object.getClass());
     }
 
     public static ChallengeModule createChallengeModule(String challenge){

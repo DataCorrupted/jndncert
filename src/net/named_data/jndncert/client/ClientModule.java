@@ -206,7 +206,7 @@ public class ClientModule {
         } catch (IOException e){
             log.warning(e.getMessage());
         }
-        log.info("PROBE interest sent with Probe info " + probeInfo);
+        log.info("_PROBE interest sent with Probe info " + probeInfo);
     }
 
     public void handleProbeResponse(
@@ -232,7 +232,6 @@ public class ClientModule {
         } else {
             errorCb.onError(
                     "The response does not carry required fields.");
-            return;
         }
     }
 
@@ -351,7 +350,6 @@ public class ClientModule {
             log.warning(e.getMessage());
         }
 
-        // TODO: I don't think nameBlockFromJson is necessary but JSONObject.toString() is enough here.
         Name interestName = new Name(state.m_ca.m_caName)
                 .append("_SELECT")
                 .append(nameBlockFromJson(reqIdJson))
@@ -636,9 +634,11 @@ public class ClientModule {
             int retryTimesLeft,
             OnData dataCb, ErrorCallback errorCb
     ){
-        return (i -> timeoutDetected(
-                i, m_retryTimes - 1,
-                dataCb, errorCb));
+        return (i ->
+                timeoutDetected(
+                        i,
+                        retryTimesLeft,
+                        dataCb, errorCb));
     }
 
     protected void nackDetected(
